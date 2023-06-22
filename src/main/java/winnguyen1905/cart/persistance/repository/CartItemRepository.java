@@ -10,7 +10,7 @@ import winnguyen1905.cart.persistance.entity.ECartItem;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<ECartItem, UUID> {
-  Optional<ECartItem> findByCartIdAndVariationId(UUID cartId, UUID productId);
-
   Optional<ECartItem> findByCreatedBy(String createdBy);
+  Optional<ECartItem> findByIdAndCustomerId(UUID id, UUID customerId);
+  Optional<ECartItem> findByCartIdAndVariationId(UUID cartId, UUID productVariantId);
 }

@@ -9,24 +9,19 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Builder.Default;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @Entity
+@SuperBuilder
 @Table(name = "carts")
 public class ECart extends EBaseAudit {
-
   @Column(name = "customer_id")
   private UUID customerId;
 
-  @Column(name = "shop_id")
-  private UUID shopId;
-
+  @Default
   @OneToMany(mappedBy = "cart", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<ECartItem> cartItems = new ArrayList<>();
-
-  // public Double totalPrice() {
-
-  // }
-
 }
