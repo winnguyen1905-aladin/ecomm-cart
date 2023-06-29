@@ -1,83 +1,71 @@
 package winnguyen1905.cart.core.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.hibernate.mapping.Map;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import winnguyen1905.cart.core.model.Cart;
+import winnguyen1905.cart.core.feign.ProductServiceClient;
+import winnguyen1905.cart.core.mapper.CartMapper;
 import winnguyen1905.cart.core.model.request.AddToCartRequest;
+import winnguyen1905.cart.core.model.request.ProductVariantByShopContainer;
+import winnguyen1905.cart.core.model.response.CartItemResponse;
+import winnguyen1905.cart.core.model.response.CartResponse;
 import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.exception.BadRequestException;
 import winnguyen1905.cart.persistance.entity.ECart;
 import winnguyen1905.cart.persistance.entity.ECartItem;
 import winnguyen1905.cart.persistance.repository.CartItemRepository;
 import winnguyen1905.cart.persistance.repository.CartRepository;
-import winnguyen1905.cart.util.OptionalExtractor;
 
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
-  private final ModelMapper mapper;
   private final CartRepository cartRepository;
   private final CartItemRepository cartItemRepository;
+  private final ProductServiceClient productServiceClient;
 
   @Override
-  public void handleAddToCart(UUID customerId, AddToCartRequest addToCartRequest) {
-    ECart cart = this.cartRepository
-        .findByShopIdAndCustomerId(addToCartRequest.getShopId(), customerId).orElse(null);
+  public void addToCart(UUID customerId, AddToCartRequest addToCartRequest) {
+    ECart cart = cartRepository.findByCustomerId(customerId)
+        .orElseGet(() -> ECart.builder()
+            .customerId(customerId)
+            .cartItems(new ArrayList<>())
+            .build());
 
-    if (cart == null) {
-      cart = new ECart();
-      cart.setCustomerId(customerId);
-      cart.setShopId(addToCartRequest.getShopId());
+    if (addToCartRequest.getQuantity() <= 0) {
+      throw new BadRequestException("Quantity must be greater than 0");
     }
 
-    ECartItem newCartItem = this.cartItemRepository
-        .findByCartIdAndVariationId(cart.getId(), addToCartRequest.getVariationId()).orElse(null);
+    ECartItem cartItem = cart.getCartItems().stream()
+        .filter(item -> item.getVariantId().equals(addToCartRequest.getProductVariantId()))
+        .findFirst()
+        .orElseGet(() -> {
+          ECartItem newItem = ECartItem.builder()
+              .cart(cart)
+              .quantity(0)
+              .variantId(addToCartRequest.getProductVariantId())
+              .build();
+          cart.getCartItems().add(newItem);
+          return newItem;
+        });
 
-    if (newCartItem == null) {
-      newCartItem = new ECartItem();
-      newCartItem.setCart(cart);
-      newCartItem.setVariationId(addToCartRequest.getVariationId());
-    }
-
-    newCartItem.setQuantity(newCartItem.getQuantity() + addToCartRequest.getQuantity());
-    cart.getCartItems().add(newCartItem);
-
-    cart = this.cartRepository.save(cart);
-  }
-
-  // not fixed yet
-  // ----------------------------------------------------------------------------------------------
-  // public List<Cart> handleGetCartReview(UUID customerId, Pageable page) {
-  //   List<ECart> carts = this.cartRepository.findAllByCustomerIdOrderByCreatedDateDesc(customerId);
-  //   List<Cart> cartDTOs = carts.stream().map(cart -> {
-  //     Cart cartDTO = this.mapper.map(cart, Cart.class);
-  //     return cartDTO;
-  //   }).toList();
-  //   return cartDTOs;
-  // }
-
-  @Override
-  public Cart handleGetCartById(UUID cartId, UUID customerId) {
-    ECart cart = OptionalExtractor.extractFromResource(this.cartRepository.findById(cartId));
-    if (!cart.getCustomerId().equals(customerId))
-      throw new BadRequestException("Not found cart id " + cartId);
-    return this.mapper.map(cart, Cart.class);
+    cartItem.setQuantity(cartItem.getQuantity() + addToCartRequest.getQuantity());
+    cartRepository.save(cart);
   }
 
   @Override
-  public PriceStatisticsResponse handleGetPriceStatisticsOfCart(UUID customerId, UUID cartId) {
+  public PriceStatisticsResponse getPriceStatisticsOfCart(UUID customerId, UUID cartId) {
     // ECart cart =
     // OptionalExtractor.extractFromResource(this.cartRepository.findById(cartId));
 
@@ -90,24 +78,34 @@ public class CartServiceImpl implements CartService {
   }
 
   @Override
-  public List<Cart> handleGetCarts(UUID customerId) {
+  public CartResponse getCartByCustomerId(UUID customerId) {
+    ECart cart = this.cartRepository.findByCustomerId(customerId)
+        .orElseThrow(() -> new EntityNotFoundException("Cart not found for customer id: " + customerId));
 
-    List<ECart> cartDetails = this.cartRepository.findAllByCustomerId(customerId);
-    // cartPage.getContent().stream().forEach(cart -> {
-    // Cart cartDTO = this.mapper.map(cart, Cart.class);
-    // PriceStatisticsResponse PriceStatistic =
-    // CartUtils.getPriceStatisticsOfCart(cart);
-    // cartDTO.setPriceStatistic(PriceStatistic);
-    // cartDTOs.add(cartDTO);
-    // });
-    // cartResponse.setResults(cartDTOs);
+    HashMap<UUID, ECartItem> mapECartItem = cart.getCartItems().stream()
+        .collect(Collectors.toMap(ECartItem::getProductVariantId,
+            Function.identity(), (existing, replacement) -> replacement, HashMap::new));
 
-    return null;
+    ProductVariantByShopContainer cartByShopProductResponse = Optional
+        .ofNullable(this.productServiceClient.getProductCartDetail(mapECartItem.keySet()))
+        .orElseThrow(() -> new EntityNotFoundException("Product details not found for cart items"));
+
+    return CartMapper.with(mapECartItem, cartByShopProductResponse);
   }
 
   @Override
-  public Boolean handleValidateCart(Cart cartDTO, UUID customerId) {
-    return true;
+  public void deleteCartItem(UUID customerId, UUID cartId) {
+    ECartItem cartItem = this.cartItemRepository.findByIdAndCustomerId(cartId, customerId)
+        .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+    this.cartItemRepository.delete(cartItem);
+  }
+
+  @Override
+  public void selectCartItem(UUID customerId, UUID cartId) {
+    ECartItem cartItem = this.cartItemRepository.findByIdAndCustomerId(cartId, customerId)
+        .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+    cartItem.setIsDeleted(!cartItem.getIsDeleted());
+    this.cartItemRepository.save(cartItem);
   }
 
 }
