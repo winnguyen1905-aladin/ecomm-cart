@@ -10,8 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddToCartRequest extends BaseObject {
-  private UUID variationId;
-  private UUID productId;
   private UUID shopId;
+  private UUID productId;
   private Integer quantity;
+  private UUID productVariantId;
 }

@@ -12,14 +12,14 @@ import winnguyen1905.cart.core.model.AbstractModel;
 @Getter
 @Setter
 @Builder
-public class CheckoutRequest extends AbstractModel {
-    private List<CheckoutItemRequest> checkoutItems;
+public class CheckoutRequest implements AbstractModel {
+  private List<CheckoutItemRequest> checkoutItems;
 
-    @Getter
-    @Setter
-    @Builder
-    public static class CheckoutItemRequest extends AbstractModel {
-        private UUID cartId;
-        private Set<UUID> discountIds;
-    }
+  @Getter
+  @Setter
+  @Builder
+  public static class CheckoutItemRequest implements AbstractModel {
+    private UUID cartId;
+    private Set<UUID> discountIds;
+  }
 }
