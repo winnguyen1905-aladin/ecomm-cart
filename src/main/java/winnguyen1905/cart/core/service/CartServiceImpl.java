@@ -2,14 +2,11 @@ package winnguyen1905.cart.core.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.hibernate.mapping.Map;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -18,9 +15,7 @@ import winnguyen1905.cart.core.feign.ProductServiceClient;
 import winnguyen1905.cart.core.mapper.CartMapper;
 import winnguyen1905.cart.core.model.request.AddToCartRequest;
 import winnguyen1905.cart.core.model.request.ProductVariantByShopContainer;
-import winnguyen1905.cart.core.model.response.CartItemResponse;
 import winnguyen1905.cart.core.model.response.CartResponse;
-import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.exception.BadRequestException;
 import winnguyen1905.cart.persistance.entity.ECart;
 import winnguyen1905.cart.persistance.entity.ECartItem;
@@ -48,33 +43,19 @@ public class CartServiceImpl implements CartService {
     }
 
     ECartItem cartItem = cart.getCartItems().stream()
-        .filter(item -> item.getVariantId().equals(addToCartRequest.getProductVariantId()))
+        .filter(item -> item.getProductVariantId().equals(addToCartRequest.getProductVariantId()))
         .findFirst()
         .orElseGet(() -> {
           ECartItem newItem = ECartItem.builder()
               .cart(cart)
               .quantity(0)
-              .variantId(addToCartRequest.getProductVariantId())
-              .build();
+              .productVariantId(addToCartRequest.getProductVariantId()).build();
           cart.getCartItems().add(newItem);
           return newItem;
         });
 
     cartItem.setQuantity(cartItem.getQuantity() + addToCartRequest.getQuantity());
     cartRepository.save(cart);
-  }
-
-  @Override
-  public PriceStatisticsResponse getPriceStatisticsOfCart(UUID customerId, UUID cartId) {
-    // ECart cart =
-    // OptionalExtractor.extractFromResource(this.cartRepository.findById(cartId));
-
-    // if (!cart.getCustomer().getId().equals(customerId))
-    // throw new BadRequestException("Not found cart id " + cartId);
-
-    // PriceStatisticsResponse priceStatisticsDTO =
-    // CartUtils.getPriceStatisticsOfCart(cart);
-    return null;
   }
 
   @Override

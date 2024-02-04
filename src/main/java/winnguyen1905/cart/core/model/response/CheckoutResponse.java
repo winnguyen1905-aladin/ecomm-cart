@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import winnguyen1905.cart.core.model.AbstractModel;
-
 public record CheckoutResponse(
     PriceStatisticsResponse priceStatistics,
     List<CheckoutItemResponse> checkoutItems) implements AbstractModel {

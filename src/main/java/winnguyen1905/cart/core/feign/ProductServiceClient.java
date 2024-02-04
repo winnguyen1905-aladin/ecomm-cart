@@ -18,9 +18,9 @@ public interface ProductServiceClient {
 
   // @PostMapping("inventory/update-redis")
   // ResponseEntity<?> updateInventory(
-  //         @RequestBody Object inventory, @RequestHeader("service") String service);
+  // @RequestBody Object inventory, @RequestHeader("service") String service);
 
   // @GetMapping("inventory/check")
   // ResponseEntity<ProductInventory> checkInventory(
-  //         @RequestParam("id") int variantId, @RequestHeader("service") String service);
+  // @RequestParam("id") int variantId, @RequestHeader("service") String service);
 }

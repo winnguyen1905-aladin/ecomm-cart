@@ -7,7 +7,8 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import winnguyen1905.cart.core.model.AbstractModel;
+
+import winnguyen1905.cart.core.model.response.AbstractModel;
 
 @Getter
 @Setter

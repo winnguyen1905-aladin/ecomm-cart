@@ -1,4 +1,4 @@
-package winnguyen1905.cart.core.model;
+package winnguyen1905.cart.core.model.response;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -8,8 +8,9 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 // @JsonInclude(value = Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategies.LowerCamelCaseStrategy.class)
 @JsonFormat(pattern = "HH-mm-ss a dd-MM-yyyy", timezone = "GMT+7")
 public interface AbstractModel extends Serializable {
-  @Serial static final long serialVersionUID = 7213600440729202783L;
+  @Serial
+  static final long serialVersionUID = 7213600440729202783L;
 }
