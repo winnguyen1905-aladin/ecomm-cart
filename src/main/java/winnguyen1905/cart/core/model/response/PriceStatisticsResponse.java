@@ -7,17 +7,13 @@ import lombok.Getter;
 import lombok.Setter;
 import winnguyen1905.cart.core.model.AbstractModel;
 
-@Getter
-@Setter
 @Builder
-public class PriceStatisticsResponse extends AbstractModel {
-  private Double totalPrice;
-  private Double totalShipPrice;
-  private UUID discountId;
-  private Double totalDiscountVoucher;
+public record PriceStatisticsResponse(
+    UUID discountId,
+    Double totalPrice,
+    Double totalShipPrice,
 
-  private Double amountShipReduced;
-  private Double amountProductReduced;
-
-  private Double finalPrice;
-}
+    Double amountShipReduced,
+    Double totalDiscountVoucher,
+    Double amountProductReduced,
+    Double finalPrice) implements AbstractModel {}
