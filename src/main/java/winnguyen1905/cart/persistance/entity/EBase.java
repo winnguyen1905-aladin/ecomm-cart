@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @Getter
 @SuperBuilder
-@MappedSuperclass
+// @MappedSuperclass
 public abstract class EBase implements Serializable {
   @Id
   @Column(columnDefinition = "BINARY(16)")

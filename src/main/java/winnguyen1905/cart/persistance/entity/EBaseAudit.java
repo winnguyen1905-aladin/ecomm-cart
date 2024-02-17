@@ -25,40 +25,40 @@ import lombok.experimental.SuperBuilder;
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE products SET is_deleted = TRUE WHERE ID=? and VERSION=?")
 public abstract class EBaseAudit extends EBase {
-  @Version
-  private long version;
+  // @Version
+  // private long version;
 
-  @Column(name = "updated_by", nullable = true, updatable = true)
-  private String updatedBy;
+  // @Column(name = "updated_by", nullable = true, updatable = true)
+  // private String updatedBy;
 
-  @Column(name = "created_by", nullable = false, updatable = false)
-  private String createdBy;
+  // @Column(name = "created_by", nullable = false, updatable = false)
+  // private String createdBy;
 
-  @CreationTimestamp
-  @Column(name = "created_date", updatable = false)
-  private Instant createdDate;
+  // @CreationTimestamp
+  // @Column(name = "created_date", updatable = false)
+  // private Instant createdDate;
 
-  @UpdateTimestamp
-  @Column(name = "updated_date", updatable = true)
-  private Instant updatedDate;
+  // @UpdateTimestamp
+  // @Column(name = "updated_date", updatable = true)
+  // private Instant updatedDate;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof EBaseAudit))
-      return false;
-    if (!super.equals(o))
-      return false;
-    EBaseAudit that = (EBaseAudit) o;
-    return createdBy.equals(that.createdBy) && updatedBy.equals(that.updatedBy) &&
-        createdDate.equals(that.createdDate) && updatedDate.equals(that.updatedDate);
-  }
+  // @Override
+  // public boolean equals(Object o) {
+  //   if (this == o)
+  //     return true;
+  //   if (!(o instanceof EBaseAudit))
+  //     return false;
+  //   if (!super.equals(o))
+  //     return false;
+  //   EBaseAudit that = (EBaseAudit) o;
+  //   return createdBy.equals(that.createdBy) && updatedBy.equals(that.updatedBy) &&
+  //       createdDate.equals(that.createdDate) && updatedDate.equals(that.updatedDate);
+  // }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), createdBy, updatedBy, createdDate, updatedDate);
-  }
+  // @Override
+  // public int hashCode() {
+  //   return Objects.hash(super.hashCode(), createdBy, updatedBy, createdDate, updatedDate);
+  // }
 
   // public String findCurrentUser() {
   // return SecurityHolderUtils.getCurrentUserLogin().orElse("Unknown");

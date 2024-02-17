@@ -7,23 +7,23 @@ import lombok.Builder;
 @Builder
 public record PriceStatisticsResponse(
     UUID discountId,
-    Double totalPrice,
-    Double totalShipPrice,
+    double totalPrice,
+    double totalShipPrice,
 
-    Double amountShipReduced,
-    Double totalDiscountVoucher,
-    Double amountProductReduced,
-    Double finalPrice) implements AbstractModel {
+    double amountShipReduced,
+    double totalDiscountVoucher,
+    double amountProductReduced,
+    double finalPrice) implements AbstractModel {
   @Builder
   public PriceStatisticsResponse(
       UUID discountId,
-      Double totalPrice,
-      Double totalShipPrice,
+      double totalPrice,
+      double totalShipPrice,
 
-      Double amountShipReduced,
-      Double totalDiscountVoucher,
-      Double amountProductReduced,
-      Double finalPrice) {
+      double amountShipReduced,
+      double totalDiscountVoucher,
+      double amountProductReduced,
+      double finalPrice) {
     this.discountId = discountId;
     this.totalPrice = totalPrice;
     this.totalShipPrice = totalShipPrice;

@@ -1,9 +1,9 @@
 package winnguyen1905.cart.secure;
 
 public enum RegionPartition {
-  US("us"),
-  EU("eu"),
-  ASIA("asia");
+  US("US"),
+  EU("EU"),
+  ASIA("ASIA");
 
   private final String region;
 

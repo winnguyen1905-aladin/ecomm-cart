@@ -1,35 +1,31 @@
-package winnguyen1905.cart.core.model.request;
+package winnguyen1905.cart.core.model.response;
 
 import java.util.List;
 import java.util.UUID;
 
-import winnguyen1905.cart.core.model.response.AbstractModel;
-
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CheckoutRequest implements AbstractModel {
+public class CheckoutOrderResponse {
   private List<CheckoutItemRequest> checkoutItems;
 
-  @Data
   @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
+  @Data
   public static class CheckoutItemRequest implements AbstractModel {
     private UUID shopId;
     private List<Item> items;
     private UUID shippingDiscount;
     private UUID shopProductDiscount;
     private UUID globalProductDiscount;
+    private PriceStatisticsResponse priceStatistics;
   }
 
-  @Data
   @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
+  @Data
   public static class Item implements AbstractModel {
     private UUID productId;
     private UUID variantId;

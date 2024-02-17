@@ -16,11 +16,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
-import com.thoughtworks.xstream.core.SecurityUtils;
 
 @Configuration
 public class JwtConfig {

@@ -1,26 +1,38 @@
 package winnguyen1905.cart.core.feign;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
-import winnguyen1905.cart.core.model.request.ProductVariantByShopContainer;
+import winnguyen1905.cart.core.model.ReserveInventoryRequest;
+import winnguyen1905.cart.core.model.ReserveInventoryResponse;
+import winnguyen1905.cart.core.model.request.ProductVariantByShopVm;
+import winnguyen1905.cart.core.model.request.PromotionApplyRequest;
+import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
+import winnguyen1905.cart.secure.RestResponse;
+import winnguyen1905.cart.secure.TAccountRequest;
 
-@FeignClient(name = "PRODUCT-SERVICE", url = "http://localhost:8090")
+@Service
+@FeignClient(name = "PRODUCT-SERVICE", url = "http://localhost:8086")
 public interface ProductServiceClient {
 
-  @GetMapping("products/variant-detail/{ids}")
-  ProductVariantByShopContainer getProductCartDetail(@PathVariable Set<UUID> ids);
+  @GetMapping("products/variant-details/{ids}")
+  RestResponse<ProductVariantByShopVm> getProductCartDetail(@PathVariable("ids") Set<UUID> ids);
 
-  // @PostMapping("inventory/update-redis")
-  // ResponseEntity<?> updateInventory(
-  // @RequestBody Object inventory, @RequestHeader("service") String service);
+  @PostMapping("products/reserve-inventory")
+  RestResponse<ReserveInventoryResponse> reserveInventory(@RequestBody ReserveInventoryRequest reserveInventoryRequest);
 
-  // @GetMapping("inventory/check")
-  // ResponseEntity<ProductInventory> checkInventory(
-  // @RequestParam("id") int variantId, @RequestHeader("service") String service);
+  // @Component
+  // public static class ProductClientFallback implements ProductServiceClient {
+  // @Override
+  // public RestResponse<ProductVariantByShopVm>
+  // getProductCartDetail(@PathVariable("ids") Set<UUID> ids) {
+  // return RestResponse.ok(ProductVariantByShopVm.builder().build());
+  // }
+  // }
 }

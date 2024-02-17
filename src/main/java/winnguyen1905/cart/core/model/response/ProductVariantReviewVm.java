@@ -5,7 +5,7 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record ProductVariantReview(
+public record ProductVariantReviewVm(
     UUID id,
     int stock,
     String sku,
@@ -16,7 +16,7 @@ public record ProductVariantReview(
     Object features) implements AbstractModel {
 
   @Builder
-  public ProductVariantReview(
+  public ProductVariantReviewVm(
       UUID id,
       int stock,
       String sku,
