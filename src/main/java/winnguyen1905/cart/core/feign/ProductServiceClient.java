@@ -4,18 +4,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import winnguyen1905.cart.core.model.ReserveInventoryRequest;
 import winnguyen1905.cart.core.model.ReserveInventoryResponse;
 import winnguyen1905.cart.core.model.request.ProductVariantByShopVm;
-import winnguyen1905.cart.core.model.request.PromotionApplyRequest;
-import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.secure.RestResponse;
-import winnguyen1905.cart.secure.TAccountRequest;
 
 @Service
 @FeignClient(name = "PRODUCT-SERVICE", url = "http://localhost:8086")
