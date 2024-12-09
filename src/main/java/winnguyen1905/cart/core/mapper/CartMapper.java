@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import winnguyen1905.cart.core.model.request.ProductVariantByShopVm;
-import winnguyen1905.cart.core.model.response.CartResponse;
-import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
+import winnguyen1905.cart.model.request.ProductVariantByShopVm;
+import winnguyen1905.cart.model.response.CartResponse;
+import winnguyen1905.cart.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.persistance.entity.ECartItem;
 
 public class CartMapper {

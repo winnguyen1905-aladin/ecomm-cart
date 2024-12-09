@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import winnguyen1905.cart.core.model.request.PromotionApplyRequest;
-import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
+import winnguyen1905.cart.model.request.PromotionApplyRequest;
+import winnguyen1905.cart.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.secure.AccountRequest;
 import winnguyen1905.cart.secure.RestResponse;
 import winnguyen1905.cart.secure.TAccountRequest;

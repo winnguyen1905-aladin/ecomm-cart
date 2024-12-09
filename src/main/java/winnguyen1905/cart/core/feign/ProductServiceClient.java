@@ -7,9 +7,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
-import winnguyen1905.cart.core.model.ReserveInventoryRequest;
-import winnguyen1905.cart.core.model.ReserveInventoryResponse;
-import winnguyen1905.cart.core.model.request.ProductVariantByShopVm;
+import winnguyen1905.cart.model.ReserveInventoryRequest;
+import winnguyen1905.cart.model.ReserveInventoryResponse;
+import winnguyen1905.cart.model.request.ProductVariantByShopVm;
 import winnguyen1905.cart.secure.RestResponse;
 
 @Service
