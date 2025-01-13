@@ -4,17 +4,17 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 
-import winnguyen1905.cart.core.model.request.AddToCartRequest;
-import winnguyen1905.cart.core.model.request.BulkUpdateCartRequest;
-import winnguyen1905.cart.core.model.request.CheckoutRequest;
-import winnguyen1905.cart.core.model.request.ClearCartRequest;
-import winnguyen1905.cart.core.model.request.RemoveCartItemRequest;
-import winnguyen1905.cart.core.model.request.UpdateCartItemRequest;
-import winnguyen1905.cart.core.model.response.CartOperationResponse;
-import winnguyen1905.cart.core.model.response.CartResponse;
-import winnguyen1905.cart.core.model.response.CartSummaryResponse;
-import winnguyen1905.cart.core.model.response.CheckoutOrderResponse;
-import winnguyen1905.cart.core.model.response.EnhancedCartResponse;
+import winnguyen1905.cart.model.request.AddToCartRequest;
+import winnguyen1905.cart.model.request.BulkUpdateCartRequest;
+import winnguyen1905.cart.model.request.CheckoutRequest;
+import winnguyen1905.cart.model.request.ClearCartRequest;
+import winnguyen1905.cart.model.request.RemoveCartItemRequest;
+import winnguyen1905.cart.model.request.UpdateCartItemRequest;
+import winnguyen1905.cart.model.response.CartOperationResponse;
+import winnguyen1905.cart.model.response.CartResponse;
+import winnguyen1905.cart.model.response.CartSummaryResponse;
+import winnguyen1905.cart.model.response.CheckoutOrderResponse;
+import winnguyen1905.cart.model.response.EnhancedCartResponse;
 import winnguyen1905.cart.secure.TAccountRequest;
 
 public interface CartService {
