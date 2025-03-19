@@ -1,0 +1,28 @@
+package winnguyen1905.cart.model;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+
+import lombok.Builder;
+import lombok.Data;
+import winnguyen1905.cart.model.response.AbstractModel;
+
+@Data
+@Builder
+public class ReserveInventoryResponse implements AbstractModel {
+  private UUID reservationId;
+  private boolean status;
+  private List<Item> items;
+
+  @Data
+  @Builder
+  public static class Item {
+    private UUID productId;
+    private UUID variantId;
+    private int quantity;
+  }
+
+  private Instant expiresAt;
+}
