@@ -1,11 +1,10 @@
-package winnguyen1905.cart.core.model.request;
+package winnguyen1905.cart.model.request;
 
 import java.util.List;
 import java.util.UUID;
 
-import winnguyen1905.cart.core.model.response.AbstractModel;
-
 import lombok.*;
+import winnguyen1905.cart.model.response.AbstractModel;
 
 @Data
 @Builder
