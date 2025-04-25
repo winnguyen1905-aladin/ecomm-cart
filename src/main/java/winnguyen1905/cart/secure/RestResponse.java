@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Builder;
-import winnguyen1905.cart.core.model.response.AbstractModel;
+import winnguyen1905.cart.model.response.AbstractModel;
 
 @Builder
 @JsonInclude(value = Include.NON_NULL)
