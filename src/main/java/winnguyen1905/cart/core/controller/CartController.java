@@ -16,7 +16,6 @@ import winnguyen1905.cart.model.response.CartOperationResponse;
 import winnguyen1905.cart.model.response.CartResponse;
 import winnguyen1905.cart.model.response.CartSummaryResponse;
 import winnguyen1905.cart.model.response.CheckoutOrderResponse;
-import winnguyen1905.cart.model.response.EnhancedCartResponse;
 import winnguyen1905.cart.secure.AccountRequest;
 import winnguyen1905.cart.secure.TAccountRequest;
 import winnguyen1905.cart.util.MetaMessage;
@@ -35,6 +34,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Simplified Cart Controller - Clean RESTful API for cart operations
+ * Focuses on essential cart functionality with clean, consistent endpoints
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/carts")
@@ -42,26 +45,17 @@ public class CartController {
 
   private final CartService cartService;
 
-  // ========== Cart Retrieval Operations ==========
+  // ========== Cart Retrieval ==========
 
   /**
-   * GET /api/v1/carts - Retrieve customer's cart
+   * GET /api/v1/carts - Get customer's cart
    */
   @GetMapping
   @MetaMessage(message = "Cart retrieved successfully")
-  public ResponseEntity<CartResponse> getCart(@AccountRequest TAccountRequest accountRequest, Pageable pageable) {
-    return ResponseEntity.ok(this.cartService.getCart(accountRequest, pageable));
-  }
-
-  /**
-   * GET /api/v1/carts/enhanced - Retrieve customer's enhanced cart with detailed information
-   */
-  @GetMapping("/enhanced")
-  @MetaMessage(message = "Enhanced cart retrieved successfully")
-  public ResponseEntity<EnhancedCartResponse> getEnhancedCart(
+  public ResponseEntity<CartResponse> getCart(
       @AccountRequest TAccountRequest accountRequest, 
       Pageable pageable) {
-    return ResponseEntity.ok(this.cartService.getEnhancedCart(accountRequest, pageable));
+    return ResponseEntity.ok(cartService.getCart(accountRequest, pageable));
   }
 
   /**
@@ -69,11 +63,12 @@ public class CartController {
    */
   @GetMapping("/summary")
   @MetaMessage(message = "Cart summary retrieved successfully")
-  public ResponseEntity<CartSummaryResponse> getCartSummary(@AccountRequest TAccountRequest accountRequest) {
-    return ResponseEntity.ok(this.cartService.getCartSummary(accountRequest));
+  public ResponseEntity<CartSummaryResponse> getCartSummary(
+      @AccountRequest TAccountRequest accountRequest) {
+    return ResponseEntity.ok(cartService.getCartSummary(accountRequest));
   }
 
-  // ========== Cart Item Management Operations ==========
+  // ========== Cart Item Management ==========
 
   /**
    * POST /api/v1/carts/items - Add item to cart
@@ -83,39 +78,38 @@ public class CartController {
   public ResponseEntity<CartOperationResponse> addToCart(
       @AccountRequest TAccountRequest accountRequest,
       @Valid @RequestBody AddToCartRequest addToCartRequest) {
-    CartOperationResponse response = this.cartService.addToCart(accountRequest, addToCartRequest);
+    CartOperationResponse response = cartService.addToCart(accountRequest, addToCartRequest);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   /**
-   * PUT /api/v1/carts/items/{itemId} - Update cart item quantity and selection
+   * PUT /api/v1/carts/items/{itemId} - Update cart item
    */
   @PutMapping("/items/{itemId}")
   @MetaMessage(message = "Cart item updated successfully")
   public ResponseEntity<CartOperationResponse> updateCartItem(
       @AccountRequest TAccountRequest accountRequest,
       @PathVariable UUID itemId,
-      @Valid @RequestBody UpdateCartItemRequest updateCartItemRequest) {
-    // Set the item ID from path variable
-    updateCartItemRequest.setCartItemId(itemId);
-    CartOperationResponse response = this.cartService.updateCartItem(accountRequest, updateCartItemRequest);
+      @Valid @RequestBody UpdateCartItemRequest updateRequest) {
+    updateRequest.setCartItemId(itemId);
+    CartOperationResponse response = cartService.updateCartItem(accountRequest, updateRequest);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * PATCH /api/v1/carts/items/bulk - Bulk update multiple cart items
+   * PATCH /api/v1/carts/items/bulk - Bulk update cart items
    */
   @PatchMapping("/items/bulk")
   @MetaMessage(message = "Cart items updated successfully")
-  public ResponseEntity<CartOperationResponse> bulkUpdateCartItems(
+  public ResponseEntity<CartOperationResponse> bulkUpdateItems(
       @AccountRequest TAccountRequest accountRequest,
       @Valid @RequestBody BulkUpdateCartRequest bulkUpdateRequest) {
-    CartOperationResponse response = this.cartService.bulkUpdateCartItems(accountRequest, bulkUpdateRequest);
+    CartOperationResponse response = cartService.bulkUpdateCartItems(accountRequest, bulkUpdateRequest);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * DELETE /api/v1/carts/items/{itemId} - Remove single item from cart
+   * DELETE /api/v1/carts/items/{itemId} - Remove single item
    */
   @DeleteMapping("/items/{itemId}")
   @MetaMessage(message = "Cart item removed successfully")
@@ -125,43 +119,45 @@ public class CartController {
     RemoveCartItemRequest request = RemoveCartItemRequest.builder()
         .cartItemIds(java.util.List.of(itemId))
         .build();
-    CartOperationResponse response = this.cartService.removeCartItems(accountRequest, request);
+    CartOperationResponse response = cartService.removeCartItems(accountRequest, request);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * DELETE /api/v1/carts/items - Remove multiple items from cart
+   * DELETE /api/v1/carts/items - Remove multiple items
    */
   @DeleteMapping("/items")
   @MetaMessage(message = "Cart items removed successfully")
   public ResponseEntity<CartOperationResponse> removeCartItems(
       @AccountRequest TAccountRequest accountRequest,
-      @Valid @RequestBody RemoveCartItemRequest removeCartItemRequest) {
-    CartOperationResponse response = this.cartService.removeCartItems(accountRequest, removeCartItemRequest);
+      @Valid @RequestBody RemoveCartItemRequest removeRequest) {
+    CartOperationResponse response = cartService.removeCartItems(accountRequest, removeRequest);
     return ResponseEntity.ok(response);
   }
 
+  // ========== Cart Item Selection ==========
+
   /**
-   * PATCH /api/v1/carts/items/{itemId}/toggle-selection - Toggle item selection
+   * PATCH /api/v1/carts/items/{itemId}/toggle - Toggle item selection
    */
-  @PatchMapping("/items/{itemId}/toggle-selection")
+  @PatchMapping("/items/{itemId}/toggle")
   @MetaMessage(message = "Cart item selection toggled successfully")
-  public ResponseEntity<CartOperationResponse> toggleCartItemSelection(
+  public ResponseEntity<CartOperationResponse> toggleItemSelection(
       @AccountRequest TAccountRequest accountRequest,
       @PathVariable UUID itemId) {
-    CartOperationResponse response = this.cartService.toggleCartItemSelection(accountRequest, itemId);
+    CartOperationResponse response = cartService.toggleCartItemSelection(accountRequest, itemId);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * PATCH /api/v1/carts/select-all - Select or deselect all cart items
+   * PATCH /api/v1/carts/select-all - Select/deselect all items
    */
   @PatchMapping("/select-all")
   @MetaMessage(message = "All cart items selection updated successfully")
-  public ResponseEntity<CartOperationResponse> selectAllCartItems(
+  public ResponseEntity<CartOperationResponse> selectAllItems(
       @AccountRequest TAccountRequest accountRequest,
       @RequestParam(defaultValue = "true") boolean selected) {
-    CartOperationResponse response = this.cartService.selectAllCartItems(accountRequest, selected);
+    CartOperationResponse response = cartService.selectAllCartItems(accountRequest, selected);
     return ResponseEntity.ok(response);
   }
 
@@ -173,50 +169,52 @@ public class CartController {
   @DeleteMapping
   @MetaMessage(message = "Cart cleared successfully")
   public ResponseEntity<CartOperationResponse> clearCart(
-      @AccountRequest TAccountRequest accountRequest, 
-      @RequestBody(required = false) ClearCartRequest clearCartRequest) {
-    if (clearCartRequest == null) {
-      clearCartRequest = new ClearCartRequest();
+      @AccountRequest TAccountRequest accountRequest,
+      @RequestBody(required = false) ClearCartRequest clearRequest) {
+    if (clearRequest == null) {
+      clearRequest = new ClearCartRequest();
     }
-    CartOperationResponse response = this.cartService.clearCart(accountRequest, clearCartRequest);
+    CartOperationResponse response = cartService.clearCart(accountRequest, clearRequest);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * POST /api/v1/carts/merge/{sourceCartId} - Merge another cart into current cart
+   * POST /api/v1/carts/merge/{sourceCartId} - Merge carts
    */
   @PostMapping("/merge/{sourceCartId}")
   @MetaMessage(message = "Cart merged successfully")
   public ResponseEntity<CartOperationResponse> mergeCart(
       @AccountRequest TAccountRequest accountRequest,
       @PathVariable UUID sourceCartId) {
-    CartOperationResponse response = this.cartService.mergeCart(accountRequest, sourceCartId);
+    CartOperationResponse response = cartService.mergeCart(accountRequest, sourceCartId);
     return ResponseEntity.ok(response);
   }
 
-  // ========== Cart Validation and Maintenance ==========
+  // ========== Cart Validation ==========
 
   /**
-   * POST /api/v1/carts/validate - Validate cart items (check availability, prices, etc.)
+   * POST /api/v1/carts/validate - Validate cart items
    */
   @PostMapping("/validate")
   @MetaMessage(message = "Cart validation completed")
-  public ResponseEntity<CartOperationResponse> validateCartItems(@AccountRequest TAccountRequest accountRequest) {
-    CartOperationResponse response = this.cartService.validateCartItems(accountRequest);
+  public ResponseEntity<CartOperationResponse> validateCart(
+      @AccountRequest TAccountRequest accountRequest) {
+    CartOperationResponse response = cartService.validateCartItems(accountRequest);
     return ResponseEntity.ok(response);
   }
 
   /**
-   * DELETE /api/v1/carts/unavailable-items - Remove unavailable items from cart
+   * DELETE /api/v1/carts/unavailable - Remove unavailable items
    */
-  @DeleteMapping("/unavailable-items")
+  @DeleteMapping("/unavailable")
   @MetaMessage(message = "Unavailable items removed successfully")
-  public ResponseEntity<CartOperationResponse> removeUnavailableItems(@AccountRequest TAccountRequest accountRequest) {
-    CartOperationResponse response = this.cartService.removeUnavailableItems(accountRequest);
+  public ResponseEntity<CartOperationResponse> removeUnavailableItems(
+      @AccountRequest TAccountRequest accountRequest) {
+    CartOperationResponse response = cartService.removeUnavailableItems(accountRequest);
     return ResponseEntity.ok(response);
   }
 
-  // ========== Checkout Operations ==========
+  // ========== Checkout ==========
 
   /**
    * POST /api/v1/carts/checkout - Checkout cart
@@ -226,56 +224,7 @@ public class CartController {
   public ResponseEntity<CheckoutOrderResponse> checkout(
       @AccountRequest TAccountRequest accountRequest,
       @Valid @RequestBody CheckoutRequest checkoutRequest) {
-    return ResponseEntity.ok(this.cartService.checkout(accountRequest, checkoutRequest));
-  }
-
-  // ========== Legacy Endpoints (Deprecated) ==========
-
-  /**
-   * @deprecated Use POST /api/v1/carts/items instead
-   */
-  @PostMapping("/add")
-  @MetaMessage(message = "Add product to cart successfully")
-  @Deprecated
-  public ResponseEntity<?> addToCartLegacy(@AccountRequest TAccountRequest accountRequest,
-      @RequestBody AddToCartRequest addToCartRequest) {
-    this.cartService.addToCart(accountRequest, addToCartRequest);
-    return ResponseEntity.ok().build();
-  }
-
-  /**
-   * @deprecated Use PATCH /api/v1/carts/items/{itemId}/toggle-selection instead
-   */
-  @PostMapping("/item/{id}/select")
-  @MetaMessage(message = "Select cart item successfully")
-  @Deprecated
-  public ResponseEntity<Void> selectCartItemLegacy(@AccountRequest TAccountRequest accountRequest,
-      @RequestParam UUID cartItemId) {
-    this.cartService.selectCartItem(accountRequest, cartItemId);
-    return ResponseEntity.noContent().build();
-  }
-
-  /**
-   * @deprecated Use DELETE /api/v1/carts/items/{itemId} instead
-   */
-  @PostMapping("/item/{id}/delete")
-  @MetaMessage(message = "Delete cart item successfully")
-  @Deprecated
-  public ResponseEntity<Void> deleteCartItemLegacy(@AccountRequest TAccountRequest accountRequest,
-      @RequestParam UUID cartItemId) {
-    this.cartService.deleteCartItem(accountRequest, cartItemId);
-    return ResponseEntity.noContent().build();
-  }
-
-  /**
-   * @deprecated Use DELETE /api/v1/carts instead
-   */
-  @PostMapping("/clear-cart")
-  @MetaMessage(message = "Clear cart successfully")
-  @Deprecated
-  public ResponseEntity<Void> clearCartLegacy(@AccountRequest TAccountRequest accountRequest, 
-      ClearCartRequest clearCartRequest) {
-    this.cartService.clearCart(accountRequest, clearCartRequest);
-    return ResponseEntity.noContent().build();
+    CheckoutOrderResponse response = cartService.checkout(accountRequest, checkoutRequest);
+    return ResponseEntity.ok(response);
   }
 }
