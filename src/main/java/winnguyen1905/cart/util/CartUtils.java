@@ -2,7 +2,7 @@ package winnguyen1905.cart.util;
 
 import java.util.stream.Collectors;
 
-import winnguyen1905.cart.core.model.response.PriceStatisticsResponse;
+import winnguyen1905.cart.model.response.PriceStatisticsResponse;
 import winnguyen1905.cart.persistance.entity.ECart; 
 
 public class CartUtils {

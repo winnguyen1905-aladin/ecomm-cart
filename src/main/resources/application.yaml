@@ -24,6 +24,24 @@ eureka:
 spring:
   application:
     name: CART-SERVICE
+  
+  # Redis Configuration for regional caching
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:mypassword}
+      timeout: 2000
+      lettuce:
+        pool:
+          enabled: true
+          max-active: 8
+          max-idle: 4
+          min-idle: 2
+          max-wait: 5000ms
+        client-name: ${spring.application.name:cart-service}
+        shutdown-timeout: 100ms
+  
   rabbitmq:
     host: localhost # RabbitMQ host (localhost if running on the same machine)
     port: 5672 # Default RabbitMQ port

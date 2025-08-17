@@ -3,7 +3,7 @@ package winnguyen1905.cart.secure;
 import java.util.UUID;
 
 import lombok.Builder;
-import winnguyen1905.cart.core.model.response.AbstractModel;
+import winnguyen1905.cart.model.response.AbstractModel;
 
 @Builder
 public record TAccountRequest(
