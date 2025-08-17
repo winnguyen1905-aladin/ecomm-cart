@@ -53,7 +53,7 @@ public class CartController {
   @GetMapping
   @MetaMessage(message = "Cart retrieved successfully")
   public ResponseEntity<CartResponse> getCart(
-      @AccountRequest TAccountRequest accountRequest, 
+      @AccountRequest TAccountRequest accountRequest,
       Pageable pageable) {
     return ResponseEntity.ok(cartService.getCart(accountRequest, pageable));
   }
