@@ -25,6 +25,13 @@ spring:
   application:
     name: CART-SERVICE
   
+  # OAuth2 Resource Server Configuration for JWT
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/myrealm
+  
   # Redis Configuration for regional caching
   data:
     redis:
