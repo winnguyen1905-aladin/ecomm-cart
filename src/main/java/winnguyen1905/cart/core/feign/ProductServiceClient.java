@@ -7,13 +7,14 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
+import winnguyen1905.cart.config.FeignClientConfig;
 import winnguyen1905.cart.model.ReserveInventoryRequest;
 import winnguyen1905.cart.model.ReserveInventoryResponse;
 import winnguyen1905.cart.model.request.ProductVariantByShopVm;
 import winnguyen1905.cart.secure.RestResponse;
 
 @Service
-@FeignClient(name = "PRODUCT-SERVICE", url = "http://localhost:8086")
+@FeignClient(name = "PRODUCT-SERVICE", url = "http://localhost:8086", configuration = FeignClientConfig.class)
 public interface ProductServiceClient {
 
   @GetMapping("products/variant-details/{ids}")

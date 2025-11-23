@@ -6,6 +6,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -13,6 +14,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 @Slf4j
 @Component
@@ -37,34 +41,54 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
   @Override
   public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
       NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-    
+
     log.debug("Resolving account request argument from headers and authentication context");
-    
+
     // Extract region using the enhanced multi-factor detection
     RegionPartition region = extractRegionWithMultiFactorDetection(webRequest);
-    
+
     // Extract other account information
     String username = null;
     UUID id = null;
     AccountType accountType = AccountType.CUSTOMER; // Default
-    
+
     try {
-      // Try to extract from JWT token if available
+      // Try to extract from JWT token if available (preferred method)
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication != null && authentication.getPrincipal() instanceof Jwt) {
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        
-        username = jwt.getClaimAsString(AccountRequestArgument.USERNAME.value);
-        id = UUID.fromString(jwt.getClaimAsString(AccountRequestArgument.ID.value));
-        accountType = AccountType.valueOf(jwt.getClaimAsString(AccountRequestArgument.ROLE.value));
+      if (authentication instanceof org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken) {
+        org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken jwtAuth = (org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken) authentication;
+        org.springframework.security.oauth2.jwt.Jwt jwt = jwtAuth.getToken();
+
+        // Extract from Keycloak JWT claims
+        username = jwt.getClaimAsString("preferred_username");
+        String subjectId = jwt.getClaimAsString("sub");
+        if (subjectId != null) {
+          id = UUID.fromString(subjectId);
+        }
+
+        // Extract roles from authorities (already processed by SecurityConfig)
+        Collection<? extends GrantedAuthority> authorities = jwtAuth.getAuthorities();
+        if (!authorities.isEmpty()) {
+          // Convert first authority back to AccountType
+          String role = authorities.iterator().next().getAuthority();
+          if (role.startsWith("ROLE_")) {
+            role = role.substring(5); // Remove "ROLE_" prefix
+          }
+          accountType = AccountType.fromRole(role);
+        }
+
+        log.debug("Extracted user info from JWT - User: {}, ID: {}, Type: {}", username, id, accountType);
       }
     } catch (Exception e) {
       log.debug("No valid JWT authentication found, using header-based approach: {}", e.getMessage());
     }
-    
-    // Fallback to headers if JWT is not available
+
+    // Fallback to headers if JWT is not available (Gateway scenario)
     if (username == null) {
-      username = webRequest.getHeader("X-User-Username");
+      username = webRequest.getHeader("X-User-Preferred-Username");
+      if (username == null) {
+        username = webRequest.getHeader("X-User-Username"); // Backward compatibility
+      }
     }
     if (id == null) {
       String userIdHeader = webRequest.getHeader("X-User-ID");
@@ -80,19 +104,17 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       }
     }
     if (accountType == AccountType.CUSTOMER) {
-      String roleHeader = webRequest.getHeader("X-User-Role");
+      String roleHeader = webRequest.getHeader("X-User-Roles");
       if (roleHeader != null) {
-        try {
-          accountType = AccountType.valueOf(roleHeader.toUpperCase());
-        } catch (IllegalArgumentException e) {
-          log.warn("Invalid account type in header: {}", roleHeader);
-        }
+        // Take the first role if multiple roles are provided
+        String firstRole = roleHeader.split(",")[0].trim();
+        accountType = AccountType.fromRole(firstRole);
       }
     }
 
-    log.info("Resolved account request - User: {}, Region: {}, Type: {}, Detection: {}", 
-             username, region.getCode(), accountType, 
-             webRequest.getHeader("X-Region-Detection-Method"));
+    log.info("Resolved account request - User: {}, Region: {}, Type: {}, Detection: {}",
+        username, region.getCode(), accountType,
+        webRequest.getHeader("X-Region-Detection-Method"));
 
     return TAccountRequest.builder()
         .id(id)
@@ -103,17 +125,18 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
   }
 
   /**
-   * Enhanced region extraction using multiple detection factors with priority order
+   * Enhanced region extraction using multiple detection factors with priority
+   * order
    */
   private RegionPartition extractRegionWithMultiFactorDetection(NativeWebRequest webRequest) {
-    
+
     // Priority 1: Explicit region preference header (highest priority)
     String preferredRegion = webRequest.getHeader("X-Preferred-Region");
     if (isValidRegionCode(preferredRegion)) {
       log.debug("Using preferred region from header: {}", preferredRegion);
       return RegionPartition.fromCode(preferredRegion);
     }
-    
+
     // Priority 2: Gateway-detected region header (most reliable)
     String gatewayRegion = webRequest.getHeader("X-Region-Code");
     if (isValidRegionCode(gatewayRegion)) {
@@ -136,7 +159,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
     } catch (Exception e) {
       log.debug("No JWT token available for region extraction: {}", e.getMessage());
     }
-    
+
     // Priority 4: Accept-Language header analysis
     String acceptLanguage = webRequest.getHeader("Accept-Language");
     if (acceptLanguage != null && !acceptLanguage.trim().isEmpty()) {
@@ -146,7 +169,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         return languageRegion;
       }
     }
-    
+
     // Priority 5: Client IP geolocation (if available from gateway)
     String clientIp = webRequest.getHeader("X-Client-IP");
     if (clientIp != null && !clientIp.trim().isEmpty() && !"unknown".equals(clientIp)) {
@@ -156,14 +179,14 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
         return ipRegion;
       }
     }
-    
+
     // Priority 6: Session-based cached region
     String sessionRegion = webRequest.getHeader("X-Session-Region");
     if (isValidRegionCode(sessionRegion)) {
       log.debug("Using cached session region: {}", sessionRegion);
       return RegionPartition.fromCode(sessionRegion);
     }
-    
+
     // Default fallback
     log.debug("No region detected, defaulting to US");
     return RegionPartition.US;
@@ -177,13 +200,13 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       // Simple language to region mapping
       if (acceptLanguage.contains("en-US") || acceptLanguage.contains("en-CA") || acceptLanguage.contains("es-MX")) {
         return RegionPartition.US;
-      } else if (acceptLanguage.contains("en-GB") || acceptLanguage.contains("de") || 
-                 acceptLanguage.contains("fr") || acceptLanguage.contains("it") || 
-                 acceptLanguage.contains("es-ES")) {
+      } else if (acceptLanguage.contains("en-GB") || acceptLanguage.contains("de") ||
+          acceptLanguage.contains("fr") || acceptLanguage.contains("it") ||
+          acceptLanguage.contains("es-ES")) {
         return RegionPartition.EU;
-      } else if (acceptLanguage.contains("zh") || acceptLanguage.contains("ja") || 
-                 acceptLanguage.contains("ko") || acceptLanguage.contains("en-AU") || 
-                 acceptLanguage.contains("en-SG")) {
+      } else if (acceptLanguage.contains("zh") || acceptLanguage.contains("ja") ||
+          acceptLanguage.contains("ko") || acceptLanguage.contains("en-AU") ||
+          acceptLanguage.contains("en-SG")) {
         return RegionPartition.ASIA;
       }
     } catch (Exception e) {
@@ -201,7 +224,7 @@ public class AccountRequestArgumentResolver implements HandlerMethodArgumentReso
       if (ip.startsWith("192.168") || ip.startsWith("10.") || ip.startsWith("172.")) {
         return RegionPartition.US; // Local IPs default to US
       }
-      
+
       // Add more sophisticated IP ranges here
       // For now, just return null to proceed to next detection method
       return null;
