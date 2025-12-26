@@ -8,7 +8,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health,info,metrics
 server:
   port: 8090
   error:
@@ -16,6 +16,7 @@ server:
 
 eureka:
   client:
+    enabled: false
     service-url:
       defaultZone: http://localhost:8761/eureka/
   instance:
@@ -25,51 +26,58 @@ spring:
   application:
     name: CART-SERVICE
   
-  # OAuth2 Resource Server Configuration for JWT
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8080/realms/myrealm
+  # OAuth2 Resource Server Configuration for JWT (disabled for development)
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         issuer-uri: http://localhost:8080/realms/myrealm
   
-  # Redis Configuration for regional caching
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:mypassword}
-      timeout: 2000
-      lettuce:
-        pool:
-          enabled: true
-          max-active: 8
-          max-idle: 4
-          min-idle: 2
-          max-wait: 5000ms
-        client-name: ${spring.application.name:cart-service}
-        shutdown-timeout: 100ms
+  # Redis Configuration for regional caching (disabled for development)
+  # data:
+  #   redis:
+  #     host: ${REDIS_HOST:localhost}
+  #     port: ${REDIS_PORT:6379}
+  #     password: ${REDIS_PASSWORD:mypassword}
+  #     timeout: 2000
+  #     lettuce:
+  #       pool:
+  #         enabled: true
+  #         max-active: 8
+  #         max-idle: 4
+  #         min-idle: 2
+  #         max-wait: 5000ms
+  #       client-name: ${spring.application.name:cart-service}
+  #       shutdown-timeout: 100ms
   
-  rabbitmq:
-    host: localhost # RabbitMQ host (localhost if running on the same machine)
-    port: 5672 # Default RabbitMQ port
-    username: guest # Default RabbitMQ username
-    password: guest # Default RabbitMQ password
-    virtual-host: / # Default virtual host ("/")
-    listener:
-      simple:
-        retry:
-          enabled: true # Enable retry for message consumption
-          initial-interval: 1000 # Initial retry interval in milliseconds
-          max-attempts: 5 # Maximum number of retry attempts
-        acknowledge-mode: auto # Auto acknowledgment of messages
-  elasticsearch:
-    uris:
-      - http://localhost:9200
-      - http://localhost:9201
-    password: guest
-    username: elastic
-    connection-timeout: 10s
-    socket-timeout: 30s
+  # RabbitMQ Configuration (disabled for development)
+  # rabbitmq:
+  #   host: localhost # RabbitMQ host (localhost if running on the same machine)
+  #   port: 5672 # Default RabbitMQ port
+  #   username: guest # Default RabbitMQ username
+  #   password: guest # Default RabbitMQ password
+  #   virtual-host: / # Default virtual host ("/")
+  #   listener:
+  #     simple:
+  #       retry:
+  #         enabled: true # Enable retry for message consumption
+  #         initial-interval: 1000 # Initial retry interval in milliseconds
+  #         max-attempts: 5 # Maximum number of retry attempts
+  #       acknowledge-mode: auto # Auto acknowledgment of messages
+  
+  # Disable Spring Cloud Bus (requires RabbitMQ)
+  cloud:
+    bus:
+      enabled: false
+  # Elasticsearch Configuration (disabled for development)
+  # elasticsearch:
+  #   uris:
+  #     - http://localhost:9200
+  #     - http://localhost:9201
+  #   password: guest
+  #   username: elastic
+  #   connection-timeout: 10s
+  #   socket-timeout: 30s
 
   servlet:
     multipart:
@@ -79,17 +87,17 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:postgresql://localhost:26257/defaultdb?sslmode=disable
-    username: root
-    password: ""
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:cartdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop # Change this if needed (create, create-drop, validate, none)
-    # properties:
-    #   hibernate:
-    #     dialect: org.hibernate.dialect.CockroachDB201Dialect # Correct dialect
     show-sql: true
 
   sql:

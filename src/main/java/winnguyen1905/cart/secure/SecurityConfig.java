@@ -34,7 +34,9 @@ import jakarta.servlet.Filter;
 public class SecurityConfig {
 
   public static final String[] whiteList = {
-      "/products/**" // Product
+      "/products/**", // Product
+      "/h2-console/**", // H2 Console for testing
+      "/actuator/**" // Actuator endpoints
   };
 
   @Bean
@@ -50,12 +52,16 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(form -> form.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, whiteList).permitAll()
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.GET, whiteList).permitAll()
+            .requestMatchers("/h2-console/**").permitAll()
+            .requestMatchers("/actuator/**").permitAll()
             // .requestMatchers(HttpMethod.GET, "/chima/**").hasRole("STUDENT")
             // .requestMatchers(HttpMethod.POST, "/auth/register/**").permitAll()
             // .requestMatchers(HttpMethod.POST, "/auth/login/**").permitAll()
             // .requestMatchers(HttpMethod.GET, "/authentication-docs/**").permitAll()
             .anyRequest().authenticated())
+        .headers(headers -> headers.frameOptions().sameOrigin()) // Allow H2 console iframe
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
         // .authenticationManager(authenticationManager)
         .build();
