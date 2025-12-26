@@ -199,34 +199,34 @@ public class DatabaseInitializer implements CommandLineRunner {
     long totalCarts = cartRepository.count();
     long totalItems = cartItemRepository.count();
     
-    log.info("\n" +
-        "🛒 CART SERVICE SEED DATA SUMMARY\n" +
-        "================================\n" +
-        "📦 Total Carts: {}\n" +
-        "🛍️  Total Cart Items: {}\n" +
-        "\n" +
-        "👥 Test Customers:\n" +
-        "   • Customer 1 (11111111-1111-4111-8111-111111111111): Mixed cart with 3 items\n" +
-        "   • Customer 2 (22222222-2222-4222-8222-222222222222): Ready for checkout with 2 items\n" +
-        "   • Customer 3 (33333333-3333-4333-8333-333333333333): Bulk order with 4 items\n" +
-        "   • Customer 4 (44444444-4444-4444-8444-444444444444): Empty cart\n" +
-        "\n" +
-        "🧪 Test Scenarios Available:\n" +
-        "   • Mixed selected/unselected items\n" +
-        "   • Different product types (phones, shoes, furniture, headphones)\n" +
-        "   • Various quantities (1-5 items per type)\n" +
-        "   • Ready-to-checkout scenarios\n" +
-        "   • Empty cart scenarios\n" +
-        "   • Bulk order testing\n" +
-        "\n" +
-        "🔗 Product References:\n" +
-        "   • iPhone 15 variants: Pink, Blue, Black\n" +
-        "   • Samsung Galaxy S24: Titanium Gray, Violet\n" +
-        "   • Nike Air Max: Black, White, Red (various sizes)\n" +
-        "   • Adidas Ultraboost: Core Black, White\n" +
-        "   • IKEA Desk: White, Black-brown\n" +
-        "   • Sony Headphones: Black, Silver\n" +
-        "================================",
-        totalCarts, totalItems);
+    // log.info("\n" +
+    //     "🛒 CART SERVICE SEED DATA SUMMARY\n" +
+    //     "================================\n" +
+    //     "📦 Total Carts: {}\n" +
+    //     "🛍️  Total Cart Items: {}\n" +
+    //     "\n" +
+    //     "👥 Test Customers:\n" +
+    //     "   • Customer 1 (11111111-1111-4111-8111-111111111111): Mixed cart with 3 items\n" +
+    //     "   • Customer 2 (22222222-2222-4222-8222-222222222222): Ready for checkout with 2 items\n" +
+    //     "   • Customer 3 (33333333-3333-4333-8333-333333333333): Bulk order with 4 items\n" +
+    //     "   • Customer 4 (44444444-4444-4444-8444-444444444444): Empty cart\n" +
+    //     "\n" +
+    //     "🧪 Test Scenarios Available:\n" +
+    //     "   • Mixed selected/unselected items\n" +
+    //     "   • Different product types (phones, shoes, furniture, headphones)\n" +
+    //     "   • Various quantities (1-5 items per type)\n" +
+    //     "   • Ready-to-checkout scenarios\n" +
+    //     "   • Empty cart scenarios\n" +
+    //     "   • Bulk order testing\n" +
+    //     "\n" +
+    //     "🔗 Product References:\n" +
+    //     "   • iPhone 15 variants: Pink, Blue, Black\n" +
+    //     "   • Samsung Galaxy S24: Titanium Gray, Violet\n" +
+    //     "   • Nike Air Max: Black, White, Red (various sizes)\n" +
+    //     "   • Adidas Ultraboost: Core Black, White\n" +
+    //     "   • IKEA Desk: White, Black-brown\n" +
+    //     "   • Sony Headphones: Black, Silver\n" +
+    //     "================================",
+    //     totalCarts, totalItems);
   }
 }
